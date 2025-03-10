@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Inject, Param, Patch, Post, Query, Response } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Inject, Param, Patch, Post, Query } from '@nestjs/common';
 import { UserDITokens } from '@core/di/UserDITokens';
 import { GetUserAdapter } from '@infrastructure/adapter/user/GetUserAdapter';
 import { UserService } from '@infrastructure/service/UserService';
@@ -8,18 +8,31 @@ import { GetUserListAdapter } from '@infrastructure/adapter/user/GetUserListAdap
 import { CreateUserAdapter } from '@infrastructure/adapter/user/CreateUserAdapter';
 import { UpdateUserAdapter } from '@infrastructure/adapter/user/UpdateUserAdapter';
 import { RemoveUserAdapter } from '@infrastructure/adapter/user/RemoveUserAdapter';
+import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiModelCreateUserBody } from '@app/api/controller/documentation/user/ApiModelCreateUserBody';
+import { ApiModelResponseUser } from '@app/api/controller/documentation/user/ApiModelResponseUser';
+import { ApiModelResponseUserList } from '@app/api/controller/documentation/user/ApiModelResponseUserList';
+import { ApiModelGetUserListQuery } from '@app/api/controller/documentation/user/ApiModelGetUserListQuery';
+import { ApiModelUpdateUserBody } from '@app/api/controller/documentation/user/ApiModelUpdateUserBody';
 
 @Controller('users')
+@ApiTags('users')
 export class UserController {
-  constructor(@Inject(UserDITokens.UserService) private readonly userService: UserService) {}
+  constructor(
+    @Inject(UserDITokens.UserService)
+    private readonly userService: UserService,
+  ) {}
 
   @Post('/')
-  async createUser(@Body() data: any): Promise<CoreApiResponse<UserDto>> {
-    const adapter = await CreateUserAdapter.new({
-      name: data.name,
-      email: data.email,
-      phone: data.phone,
-      address: data.address,
+  @HttpCode(HttpStatus.CREATED)
+  @ApiBody({ type: ApiModelCreateUserBody })
+  @ApiResponse({ status: HttpStatus.CREATED, type: ApiModelResponseUser })
+  async createUser(@Body() body: ApiModelCreateUserBody): Promise<CoreApiResponse<UserDto>> {
+    const adapter: CreateUserAdapter = await CreateUserAdapter.new({
+      name: body.name,
+      email: body.email,
+      phone: body?.phone,
+      address: body?.address,
     });
 
     const user: UserDto = await this.userService.createUser(adapter);
@@ -27,9 +40,30 @@ export class UserController {
     return CoreApiResponse.success(user);
   }
 
+  @Get('/')
+  @HttpCode(HttpStatus.OK)
+  @ApiResponse({ status: HttpStatus.OK, type: ApiModelResponseUserList })
+  async getUserList(
+    @Query() query: ApiModelGetUserListQuery,
+  ): Promise<CoreApiResponse<{ totalCount: number; list: UserDto[] }>> {
+    const adapter: GetUserListAdapter = await GetUserListAdapter.new({
+      limit: query.limit,
+      page: query.page,
+      keyword: query?.keyword,
+      sortBy: query?.sortBy,
+      sortOrder: query?.sortOrder,
+    });
+
+    const data: { totalCount: number; list: UserDto[] } = await this.userService.getUserList(adapter);
+
+    return CoreApiResponse.success(data);
+  }
+
   @Get('/:userId')
+  @HttpCode(HttpStatus.OK)
+  @ApiResponse({ status: HttpStatus.OK, type: ApiModelResponseUser })
   async getUser(@Param('userId') userId: string): Promise<CoreApiResponse<UserDto>> {
-    const adapter = await GetUserAdapter.new({
+    const adapter: GetUserAdapter = await GetUserAdapter.new({
       userId: userId,
     });
 
@@ -38,36 +72,30 @@ export class UserController {
     return CoreApiResponse.success(user);
   }
 
-  @Get('/')
-  async getUserList(@Query() query: any): Promise<CoreApiResponse<{ totalCount: number; list: UserDto[] }>> {
-    const adapter = await GetUserListAdapter.new({
-      keyword: query.keyword,
-      limit: query.limit,
-      offset: query.offset,
-    });
-
-    const data: { totalCount: number; list: UserDto[] } = await this.userService.getUserList(adapter);
-
-    return CoreApiResponse.success(data);
-  }
-
   @Patch('/:userId')
-  async updateUser(@Param('userId') userId: string, @Body() data: any): Promise<CoreApiResponse<UserDto>> {
-    const adapter = await UpdateUserAdapter.new({
+  @HttpCode(HttpStatus.OK)
+  @ApiResponse({ status: HttpStatus.OK, type: ApiModelResponseUser })
+  async updateUser(
+    @Param('userId') userId: string,
+    @Body() body: ApiModelUpdateUserBody,
+  ): Promise<CoreApiResponse<UserDto>> {
+    const adapter: UpdateUserAdapter = await UpdateUserAdapter.new({
       userId: userId,
-      name: data.name,
-      phone: data.phone,
-      address: data.address,
+      name: body?.name,
+      phone: body?.phone,
+      address: body?.address,
     });
 
-    const user: UserDto = await this.userService.updateUser(adapter);
+    const updatedUser: UserDto = await this.userService.updateUser(adapter);
 
-    return CoreApiResponse.success(user);
+    return CoreApiResponse.success(updatedUser);
   }
 
   @Delete('/:userId')
+  @HttpCode(HttpStatus.OK)
+  @ApiResponse({ status: HttpStatus.OK, type: ApiModelResponseUser })
   async removeUser(@Param('userId') userId: string): Promise<CoreApiResponse<UserDto>> {
-    const adapter = await RemoveUserAdapter.new({
+    const adapter: RemoveUserAdapter = await RemoveUserAdapter.new({
       userId: userId,
     });
 

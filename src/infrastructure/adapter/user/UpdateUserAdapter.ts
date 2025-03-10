@@ -12,17 +12,17 @@ export class UpdateUserAdapter extends ValidatableAdapter implements UpdateUserP
   @Expose()
   @IsOptional()
   @IsString()
-  public name: string;
+  public name?: string;
 
   @Expose()
   @IsOptional()
   @IsString()
-  public phone: string;
+  public phone?: string;
 
   @Expose()
   @IsOptional()
   @IsString()
-  public address: string;
+  public address?: string;
 
   public static async new(payload: UpdateUserPort): Promise<UpdateUserAdapter> {
     const adapter: UpdateUserAdapter = plainToClass(UpdateUserAdapter, payload);

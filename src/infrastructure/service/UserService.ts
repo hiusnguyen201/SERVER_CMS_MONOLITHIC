@@ -23,12 +23,8 @@ export class UserService {
   constructor(@InjectRepository(User) private readonly userRepository: Repository<User>) {}
 
   async createUser(payload: CreateUserPort): Promise<UserDto> {
-    const isExistEmail = !!(await this.userRepository.findOne({
-      where: { email: payload.email },
-      select: { id: true },
-    }));
     CoreAssert.isFalse(
-      isExistEmail,
+      await this.userRepository.exists({ where: { email: payload.email } }),
       Exception.new({ code: Code.ENTITY_ALREADY_EXISTS_ERROR, overrideMessage: 'Email already exists' }),
     );
 
@@ -60,15 +56,18 @@ export class UserService {
 
   async getUserList(payload: GetUserListPort): Promise<{ totalCount: number; list: UserDto[] }> {
     const [users, totalCount]: [User[], number] = await this.userRepository.findAndCount({
-      skip: payload.offset,
+      skip: (payload.page - 1) * payload.limit,
       take: payload.limit,
+      order: {
+        ...(payload.sortBy && payload.sortOrder ? { [payload.sortBy]: payload.sortOrder } : {}),
+      },
     });
 
     return { totalCount, list: UserDto.newListFromUsers(users) };
   }
 
   async updateUser(payload: UpdateUserPort): Promise<UserDto> {
-    const user: User = CoreAssert.notEmpty(
+    let user: User = CoreAssert.notEmpty(
       await this.userRepository.findOne({ where: { id: payload.userId } }),
       Exception.new({ code: Code.ENTITY_NOT_FOUND_ERROR, overrideMessage: 'User not found' }),
     );

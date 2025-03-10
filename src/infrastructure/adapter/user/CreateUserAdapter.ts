@@ -16,12 +16,12 @@ export class CreateUserAdapter extends ValidatableAdapter implements CreateUserP
   @Expose()
   @IsOptional()
   @IsString()
-  public phone: string;
+  public phone?: string;
 
   @Expose()
   @IsOptional()
   @IsString()
-  public address: string;
+  public address?: string;
 
   public static async new(payload: CreateUserPort): Promise<CreateUserAdapter> {
     const adapter: CreateUserAdapter = plainToClass(CreateUserAdapter, payload);

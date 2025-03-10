@@ -39,7 +39,7 @@ export class ServerApplication {
 
     const document: OpenAPIObject = SwaggerModule.createDocument(app, options);
 
-    SwaggerModule.setup('documentation', app, document);
+    SwaggerModule.setup('docs', app, document);
   }
 
   private log(): void {

@@ -1,5 +1,3 @@
-export interface GetUserListPort {
-  offset: number;
-  limit: number;
-  keyword: string;
-}
+import { GetEntityListPort } from '@infrastructure/port/common/GetEntityListPort';
+
+export interface GetUserListPort extends GetEntityListPort {}
