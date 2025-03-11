@@ -1,6 +1,6 @@
 import { Module, Provider } from '@nestjs/common';
 import { UserController } from '@app/api/controller/UserController';
-import { UserDITokens } from '@core/di/UserDITokens';
+import { UserDITokens } from '@core/di/user/UserDITokens';
 import { UserService } from '@infrastructure/service/UserService';
 import { User } from '@infrastructure/persistence/entity/User';
 import { DataSource } from 'typeorm';

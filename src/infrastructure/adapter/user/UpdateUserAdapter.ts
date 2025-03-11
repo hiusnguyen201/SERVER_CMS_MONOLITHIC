@@ -1,7 +1,7 @@
 import { ValidatableAdapter } from '@core/adapter/ValidatableAdapter';
 import { UpdateUserPort } from '@infrastructure/port/user/UpdateUserPort';
 import { Exclude, Expose, plainToClass } from 'class-transformer';
-import { IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsOptional, IsPhoneNumber, IsString, IsUUID } from 'class-validator';
 
 @Exclude()
 export class UpdateUserAdapter extends ValidatableAdapter implements UpdateUserPort {
@@ -10,13 +10,13 @@ export class UpdateUserAdapter extends ValidatableAdapter implements UpdateUserP
   public userId: string;
 
   @Expose()
-  @IsOptional()
   @IsString()
-  public name?: string;
+  public name: string;
 
   @Expose()
   @IsOptional()
   @IsString()
+  @IsPhoneNumber('VN')
   public phone?: string;
 
   @Expose()

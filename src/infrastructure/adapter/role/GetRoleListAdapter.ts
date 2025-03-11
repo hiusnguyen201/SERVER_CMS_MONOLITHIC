@@ -1,12 +1,12 @@
 import { ValidatableAdapter } from '@core/adapter/ValidatableAdapter';
 import { SORT_ORDER_VALUES } from '@core/constant/common/CommonConstant';
-import { USER_SORT_BY_VALUES } from '@core/constant/user/UserConstant';
-import { GetUserListPort } from '@infrastructure/port/user/GetUserListPort';
+import { ROLE_SORT_BY_VALUES } from '@core/constant/role/RoleConstant';
+import { GetRoleListPort } from '@infrastructure/port/role/GetRoleListPort';
 import { Exclude, Expose, plainToClass, Transform } from 'class-transformer';
 import { IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
 
 @Exclude()
-export class GetUserListAdapter extends ValidatableAdapter implements GetUserListPort {
+export class GetRoleListAdapter extends ValidatableAdapter implements GetRoleListPort {
   @Expose()
   @IsOptional()
   @IsString()
@@ -30,8 +30,8 @@ export class GetUserListAdapter extends ValidatableAdapter implements GetUserLis
   @Expose()
   @IsOptional()
   @IsString()
-  @Transform(({ value }) => value ?? USER_SORT_BY_VALUES.CREATED_AT)
-  public sortBy?: USER_SORT_BY_VALUES;
+  @Transform(({ value }) => value ?? ROLE_SORT_BY_VALUES.CREATED_AT)
+  public sortBy?: ROLE_SORT_BY_VALUES;
 
   @Expose()
   @IsOptional()
@@ -39,8 +39,8 @@ export class GetUserListAdapter extends ValidatableAdapter implements GetUserLis
   @Transform(({ value }) => value ?? SORT_ORDER_VALUES.DESC)
   public sortOrder?: SORT_ORDER_VALUES;
 
-  public static async new(payload: GetUserListPort): Promise<GetUserListAdapter> {
-    const adapter: GetUserListAdapter = plainToClass(GetUserListAdapter, payload);
+  public static async new(payload: GetRoleListPort): Promise<GetRoleListAdapter> {
+    const adapter: GetRoleListAdapter = plainToClass(GetRoleListAdapter, payload);
     await adapter.validate();
     return adapter;
   }

@@ -1,7 +1,7 @@
 import { ValidatableAdapter } from '@core/adapter/ValidatableAdapter';
 import { CreateUserPort } from '@infrastructure/port/user/CreateUserPort';
 import { Exclude, Expose, plainToClass } from 'class-transformer';
-import { IsOptional, IsString } from 'class-validator';
+import { IsEmail, IsOptional, IsPhoneNumber, IsString } from 'class-validator';
 
 @Exclude()
 export class CreateUserAdapter extends ValidatableAdapter implements CreateUserPort {
@@ -11,11 +11,13 @@ export class CreateUserAdapter extends ValidatableAdapter implements CreateUserP
 
   @Expose()
   @IsString()
+  @IsEmail()
   public email: string;
 
   @Expose()
   @IsOptional()
   @IsString()
+  @IsPhoneNumber('VN')
   public phone?: string;
 
   @Expose()

@@ -1,8 +1,8 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class ApiModelUpdateUserBody {
-  @ApiPropertyOptional({ type: 'string' })
-  public name?: string;
+  @ApiProperty({ type: 'string' })
+  public name: string;
 
   @ApiPropertyOptional({ type: 'string' })
   public phone?: string;

@@ -1,3 +1,4 @@
+import { SORT_ORDER_VALUES } from '@core/constant/common/CommonConstant';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class ApiModelGetEntityListQuery {
@@ -13,6 +14,6 @@ export class ApiModelGetEntityListQuery {
   @ApiPropertyOptional({ type: 'string' })
   public sortBy: string;
 
-  @ApiPropertyOptional({ enum: ['asc', 'ASC', 'desc', 'DESC'] })
-  public sortOrder: 'asc' | 'ASC' | 'desc' | 'DESC';
+  @ApiPropertyOptional({ enum: SORT_ORDER_VALUES })
+  public sortOrder: SORT_ORDER_VALUES;
 }

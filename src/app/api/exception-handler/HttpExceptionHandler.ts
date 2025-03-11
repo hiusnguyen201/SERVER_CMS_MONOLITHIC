@@ -4,7 +4,7 @@ import { CoreApiResponse } from '@core/api/CoreApiResponse';
 import { Code } from '@core/code/Code';
 import { Exception } from '@core/exception/Exception';
 import { ApiServerConfig } from '@infrastructure/config/ApiServerConfig';
-import { CommonDITokens } from '@core/di/CommonDITokens';
+import { CommonDITokens } from '@core/di/common/CommonDITokens';
 
 @Catch()
 export class HttpExceptionHandler implements ExceptionFilter {

@@ -1,4 +1,4 @@
-import { USER_TYPES } from '@core/constant/UserConstant';
+import { USER_TYPE } from '@core/constant/user/UserConstant';
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
 
 @Entity()
@@ -6,8 +6,8 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'varchar', nullable: false })
-  type: USER_TYPES;
+  @Column({ type: 'varchar', nullable: false, enum: USER_TYPE })
+  type: USER_TYPE;
 
   @Column({ type: 'varchar', nullable: true })
   avatar: string;

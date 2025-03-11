@@ -1,8 +1,8 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Inject, Param, Patch, Post, Query } from '@nestjs/common';
-import { UserDITokens } from '@core/di/UserDITokens';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Inject, Param, Post, Put, Query } from '@nestjs/common';
+import { UserDITokens } from '@core/di/user/UserDITokens';
 import { GetUserAdapter } from '@infrastructure/adapter/user/GetUserAdapter';
 import { UserService } from '@infrastructure/service/UserService';
-import { UserDto } from '@infrastructure/dto/UserDto';
+import { UserDto } from '@infrastructure/dto/user/UserDto';
 import { CoreApiResponse } from '@core/api/CoreApiResponse';
 import { GetUserListAdapter } from '@infrastructure/adapter/user/GetUserListAdapter';
 import { CreateUserAdapter } from '@infrastructure/adapter/user/CreateUserAdapter';
@@ -14,6 +14,7 @@ import { ApiModelResponseUser } from '@app/api/controller/documentation/user/Api
 import { ApiModelResponseUserList } from '@app/api/controller/documentation/user/ApiModelResponseUserList';
 import { ApiModelGetUserListQuery } from '@app/api/controller/documentation/user/ApiModelGetUserListQuery';
 import { ApiModelUpdateUserBody } from '@app/api/controller/documentation/user/ApiModelUpdateUserBody';
+import { UserListDto } from '@infrastructure/dto/user/UserListDto';
 
 @Controller('users')
 @ApiTags('users')
@@ -43,9 +44,7 @@ export class UserController {
   @Get('/')
   @HttpCode(HttpStatus.OK)
   @ApiResponse({ status: HttpStatus.OK, type: ApiModelResponseUserList })
-  async getUserList(
-    @Query() query: ApiModelGetUserListQuery,
-  ): Promise<CoreApiResponse<{ totalCount: number; list: UserDto[] }>> {
+  async getUserList(@Query() query: ApiModelGetUserListQuery): Promise<CoreApiResponse<UserListDto>> {
     const adapter: GetUserListAdapter = await GetUserListAdapter.new({
       limit: query.limit,
       page: query.page,
@@ -54,7 +53,7 @@ export class UserController {
       sortOrder: query?.sortOrder,
     });
 
-    const data: { totalCount: number; list: UserDto[] } = await this.userService.getUserList(adapter);
+    const data: UserListDto = await this.userService.getUserList(adapter);
 
     return CoreApiResponse.success(data);
   }
@@ -72,7 +71,7 @@ export class UserController {
     return CoreApiResponse.success(user);
   }
 
-  @Patch('/:userId')
+  @Put('/:userId')
   @HttpCode(HttpStatus.OK)
   @ApiResponse({ status: HttpStatus.OK, type: ApiModelResponseUser })
   async updateUser(
@@ -81,7 +80,7 @@ export class UserController {
   ): Promise<CoreApiResponse<UserDto>> {
     const adapter: UpdateUserAdapter = await UpdateUserAdapter.new({
       userId: userId,
-      name: body?.name,
+      name: body.name,
       phone: body?.phone,
       address: body?.address,
     });

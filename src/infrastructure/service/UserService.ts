@@ -7,14 +7,15 @@ import { Exception } from '@core/exception/Exception';
 import { Code } from '@core/code/Code';
 import { User } from '@infrastructure/persistence/entity/User';
 import { GetUserPort } from '@infrastructure/port/user/GetUserPort';
-import { UserDto } from '@infrastructure/dto/UserDto';
+import { UserDto } from '@infrastructure/dto/user/UserDto';
 import { GetUserListPort } from '@infrastructure/port/user/GetUserListPort';
 import { CreateUserPort } from '@infrastructure/port/user/CreateUserPort';
 import { UpdateUserPort } from '@infrastructure/port/user/UpdateUserPort';
 import { CoreAssert } from '@core/util/assert/CoreAssert';
-import { USER_TYPES } from '@core/constant/UserConstant';
-import { ObjectTransformer } from '@core/util/object/ObjectTransformer';
+import { USER_TYPE } from '@core/constant/user/UserConstant';
+import { ObjectTransformer } from '@core/util/ObjectTransformer';
 import { RemoveUserPort } from '@infrastructure/port/user/RemoveUserPort';
+import { UserListDto } from '@infrastructure/dto/user/UserListDto';
 
 @Injectable()
 export class UserService {
@@ -33,7 +34,7 @@ export class UserService {
     const passwordHash = await hash(password, salt);
     const user = this.userRepository.create({
       ...payload,
-      type: USER_TYPES.USER,
+      type: USER_TYPE.USER,
       password: passwordHash,
       isVerified: false,
     });
@@ -54,7 +55,7 @@ export class UserService {
     return UserDto.newFromUser(user);
   }
 
-  async getUserList(payload: GetUserListPort): Promise<{ totalCount: number; list: UserDto[] }> {
+  async getUserList(payload: GetUserListPort): Promise<UserListDto> {
     const [users, totalCount]: [User[], number] = await this.userRepository.findAndCount({
       skip: (payload.page - 1) * payload.limit,
       take: payload.limit,
@@ -72,7 +73,7 @@ export class UserService {
       Exception.new({ code: Code.ENTITY_NOT_FOUND_ERROR, overrideMessage: 'User not found' }),
     );
 
-    Object.assign(user, ObjectTransformer.removeUndefinedValues(payload));
+    Object.assign(user, payload);
 
     await this.userRepository.save(user);
 
