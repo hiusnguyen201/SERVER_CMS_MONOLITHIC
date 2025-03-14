@@ -6,15 +6,21 @@ import { UserDto } from '@infrastructure/dto/user/UserDto';
 import { CoreApiResponse } from '@core/api/CoreApiResponse';
 import { GetUserListAdapter } from '@infrastructure/adapter/user/GetUserListAdapter';
 import { CreateUserAdapter } from '@infrastructure/adapter/user/CreateUserAdapter';
-import { UpdateUserAdapter } from '@infrastructure/adapter/user/UpdateUserAdapter';
+import { UpdateUserInfoAdapter } from '@infrastructure/adapter/user/UpdateUserInfoAdapter';
 import { RemoveUserAdapter } from '@infrastructure/adapter/user/RemoveUserAdapter';
 import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ApiModelCreateUserBody } from '@app/api/controller/documentation/user/ApiModelCreateUserBody';
 import { ApiModelResponseUser } from '@app/api/controller/documentation/user/ApiModelResponseUser';
 import { ApiModelResponseUserList } from '@app/api/controller/documentation/user/ApiModelResponseUserList';
 import { ApiModelGetUserListQuery } from '@app/api/controller/documentation/user/ApiModelGetUserListQuery';
-import { ApiModelUpdateUserBody } from '@app/api/controller/documentation/user/ApiModelUpdateUserBody';
+import { ApiModelUpdateUserInfoBody } from '@app/api/controller/documentation/user/ApiModelUpdateUserInfoBody';
+import { ApiModelUpdateUserRolesBody } from '@app/api/controller/documentation/user/ApiModelUpdateUserRolesBody';
 import { UserListDto } from '@infrastructure/dto/user/UserListDto';
+import { UpdateUserRolesAdapter } from '@infrastructure/adapter/user/UpdateUserRolesAdapter';
+import { GetUserRolesAdapter } from '@infrastructure/adapter/user/GetUserRolesAdapter';
+import { RoleDto } from '@infrastructure/dto/role/RoleDto';
+import { ApiModelGetRoleListQuery } from './documentation/role/ApiModelGetRoleListQuery';
+import { RoleListDto } from '@infrastructure/dto/role/RoleListDto';
 
 @Controller('users')
 @ApiTags('users')
@@ -74,20 +80,58 @@ export class UserController {
   @Put('/:userId')
   @HttpCode(HttpStatus.OK)
   @ApiResponse({ status: HttpStatus.OK, type: ApiModelResponseUser })
-  async updateUser(
+  async updateUserInfo(
     @Param('userId') userId: string,
-    @Body() body: ApiModelUpdateUserBody,
+    @Body() body: ApiModelUpdateUserInfoBody,
   ): Promise<CoreApiResponse<UserDto>> {
-    const adapter: UpdateUserAdapter = await UpdateUserAdapter.new({
+    const adapter: UpdateUserInfoAdapter = await UpdateUserInfoAdapter.new({
       userId: userId,
       name: body.name,
       phone: body?.phone,
       address: body?.address,
     });
 
-    const updatedUser: UserDto = await this.userService.updateUser(adapter);
+    const updatedUser: UserDto = await this.userService.updateUserInfo(adapter);
 
     return CoreApiResponse.success(updatedUser);
+  }
+
+  @Put('/:userId/roles')
+  @HttpCode(HttpStatus.OK)
+  @ApiResponse({ status: HttpStatus.OK, type: ApiModelResponseUser })
+  async updateUserRoles(
+    @Param('userId') userId: string,
+    @Body() body: ApiModelUpdateUserRolesBody,
+  ): Promise<CoreApiResponse<UserDto>> {
+    const adapter: UpdateUserRolesAdapter = await UpdateUserRolesAdapter.new({
+      userId: userId,
+      roleIds: body.roleIds,
+    });
+
+    const updatedUser: UserDto = await this.userService.updateUserRoles(adapter);
+
+    return CoreApiResponse.success(updatedUser);
+  }
+
+  @Get('/:userId/roles')
+  @HttpCode(HttpStatus.OK)
+  @ApiResponse({ status: HttpStatus.OK, type: ApiModelResponseUser })
+  async getUserRoles(
+    @Param('userId') userId: string,
+    @Query() query: ApiModelGetRoleListQuery,
+  ): Promise<CoreApiResponse<RoleListDto>> {
+    const adapter: GetUserRolesAdapter = await GetUserRolesAdapter.new({
+      userId: userId,
+      limit: query.limit,
+      page: query.page,
+      keyword: query?.keyword,
+      sortBy: query?.sortBy,
+      sortOrder: query?.sortOrder,
+    });
+
+    const data: RoleListDto = await this.userService.getUserRoles(adapter);
+
+    return CoreApiResponse.success(data);
   }
 
   @Delete('/:userId')

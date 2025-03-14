@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-export class ApiModelUpdateUserBody {
+export class ApiModelUpdateUserInfoBody {
   @ApiProperty({ type: 'string' })
   public name: string;
 

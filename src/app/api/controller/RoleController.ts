@@ -6,13 +6,13 @@ import { CoreApiResponse } from '@core/api/CoreApiResponse';
 import { GetRoleAdapter } from '@infrastructure/adapter/role/GetRoleAdapter';
 import { GetRoleListAdapter } from '@infrastructure/adapter/role/GetRoleListAdapter';
 import { CreateRoleAdapter } from '@infrastructure/adapter/role/CreateRoleAdapter';
-import { UpdateRoleAdapter } from '@infrastructure/adapter/role/UpdateRoleAdapter';
+import { UpdateRoleInfoAdapter } from '@infrastructure/adapter/role/UpdateRoleInfoAdapter';
 import { RemoveRoleAdapter } from '@infrastructure/adapter/role/RemoveRoleAdapter';
 import { ApiModelCreateRoleBody } from '@app/api/controller/documentation/role/ApiModelCreateRoleBody';
 import { ApiModelResponseRole } from '@app/api/controller/documentation/role/ApiModelResponseRole';
 import { ApiModelResponseRoleList } from '@app/api/controller/documentation/role/ApiModelResponseRoleList';
 import { ApiModelGetRoleListQuery } from '@app/api/controller/documentation/role/ApiModelGetRoleListQuery';
-import { ApiModelUpdateRoleBody } from '@app/api/controller/documentation/role/ApiModelUpdateRoleBody';
+import { ApiModelUpdateRoleInfoBody } from '@app/api/controller/documentation/role/ApiModelUpdateRoleInfoBody';
 import { RoleListDto } from '@infrastructure/dto/role/RoleListDto';
 import { RoleService } from '@infrastructure/service/RoleService';
 
@@ -73,18 +73,18 @@ export class RoleController {
   @Put('/:roleId')
   @HttpCode(HttpStatus.OK)
   @ApiResponse({ status: HttpStatus.OK, type: ApiModelResponseRole })
-  async updateRole(
+  async updateRoleInfo(
     @Param('roleId') roleId: string,
-    @Body() body: ApiModelUpdateRoleBody,
+    @Body() body: ApiModelUpdateRoleInfoBody,
   ): Promise<CoreApiResponse<RoleDto>> {
-    const adapter: UpdateRoleAdapter = await UpdateRoleAdapter.new({
+    const adapter: UpdateRoleInfoAdapter = await UpdateRoleInfoAdapter.new({
       roleId: roleId,
       name: body.name,
       description: body?.description,
       status: body.status,
     });
 
-    const updatedRole: RoleDto = await this.roleService.updateRole(adapter);
+    const updatedRole: RoleDto = await this.roleService.updateRoleInfo(adapter);
 
     return CoreApiResponse.success(updatedRole);
   }

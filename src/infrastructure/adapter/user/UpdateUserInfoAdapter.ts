@@ -1,10 +1,10 @@
 import { ValidatableAdapter } from '@core/adapter/ValidatableAdapter';
-import { UpdateUserPort } from '@infrastructure/port/user/UpdateUserPort';
+import { UpdateUserInfoPort } from '@infrastructure/port/user/UpdateUserInfoPort';
 import { Exclude, Expose, plainToClass } from 'class-transformer';
 import { IsOptional, IsPhoneNumber, IsString, IsUUID } from 'class-validator';
 
 @Exclude()
-export class UpdateUserAdapter extends ValidatableAdapter implements UpdateUserPort {
+export class UpdateUserInfoAdapter extends ValidatableAdapter implements UpdateUserInfoPort {
   @Expose()
   @IsUUID()
   public userId: string;
@@ -24,8 +24,8 @@ export class UpdateUserAdapter extends ValidatableAdapter implements UpdateUserP
   @IsString()
   public address?: string;
 
-  public static async new(payload: UpdateUserPort): Promise<UpdateUserAdapter> {
-    const adapter: UpdateUserAdapter = plainToClass(UpdateUserAdapter, payload);
+  public static async new(payload: UpdateUserInfoPort): Promise<UpdateUserInfoAdapter> {
+    const adapter: UpdateUserInfoAdapter = plainToClass(UpdateUserInfoAdapter, payload);
     await adapter.validate();
     return adapter;
   }

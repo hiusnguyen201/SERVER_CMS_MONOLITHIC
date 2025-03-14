@@ -10,7 +10,8 @@ export class GetRoleListAdapter extends ValidatableAdapter implements GetRoleLis
   @Expose()
   @IsOptional()
   @IsString()
-  public keyword?: string;
+  @Transform(({ value }) => value ?? '')
+  public keyword: string;
 
   @Expose()
   @IsOptional()

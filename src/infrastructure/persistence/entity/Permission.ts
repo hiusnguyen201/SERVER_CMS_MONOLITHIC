@@ -1,6 +1,17 @@
 import { METHODS } from 'http';
 import { PERMISSION_STATUS } from '@core/constant/permission/PermissionConstant';
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+  ManyToMany,
+  JoinTable,
+} from 'typeorm';
+import { User } from './User';
+import { Role } from './Role';
 
 @Entity()
 export class Permission {
@@ -35,5 +46,12 @@ export class Permission {
   updatedAt: Date;
 
   @DeleteDateColumn({ type: 'timestamp', nullable: true })
-  deletedAt: Date;
+  removedAt: Date;
+
+  // References
+  @ManyToMany(() => User, (user: User): Permission[] => user.permissions, { cascade: true })
+  users: User[];
+
+  @ManyToMany(() => Role, (role: Role): Permission[] => role.permissions, { cascade: true })
+  roles: Role[];
 }

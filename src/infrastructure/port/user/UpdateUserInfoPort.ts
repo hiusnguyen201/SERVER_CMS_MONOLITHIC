@@ -1,4 +1,4 @@
-export interface UpdateUserPort {
+export interface UpdateUserInfoPort {
   userId: string;
   name: string;
   phone?: string;

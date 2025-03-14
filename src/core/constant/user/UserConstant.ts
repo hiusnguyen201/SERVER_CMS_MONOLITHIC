@@ -8,3 +8,9 @@ export enum USER_SORT_BY_VALUES {
   EMAIL = 'email',
   CREATED_AT = 'createdAt',
 }
+
+export enum USER_STATUS {
+  ACTIVE = 'Active',
+  INACTIVE = 'Inactive',
+  LOCKED = 'Locked',
+}

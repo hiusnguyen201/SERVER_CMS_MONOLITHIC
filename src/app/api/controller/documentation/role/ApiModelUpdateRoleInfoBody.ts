@@ -1,7 +1,7 @@
 import { ROLE_STATUS } from '@core/constant/role/RoleConstant';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-export class ApiModelUpdateRoleBody {
+export class ApiModelUpdateRoleInfoBody {
   @ApiProperty({ type: 'string' })
   public name: string;
 

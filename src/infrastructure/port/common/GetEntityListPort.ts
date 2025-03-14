@@ -1,7 +1,7 @@
 export interface GetEntityListPort {
   page: number;
   limit: number;
-  keyword?: string;
+  keyword: string;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc' | 'ASC' | 'DESC';
 }

@@ -22,6 +22,9 @@ export class UserDto {
   public address: string;
 
   @Expose()
+  public status: string;
+
+  @Expose()
   public isVerified: boolean;
 
   @Expose()

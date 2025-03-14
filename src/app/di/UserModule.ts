@@ -2,13 +2,20 @@ import { Module, Provider } from '@nestjs/common';
 import { UserController } from '@app/api/controller/UserController';
 import { UserDITokens } from '@core/di/user/UserDITokens';
 import { UserService } from '@infrastructure/service/UserService';
-import { User } from '@infrastructure/persistence/entity/User';
 import { DataSource } from 'typeorm';
+import { RoleDITokens } from '@core/di/role/RoleDITokens';
+import { RoleRepository } from '@infrastructure/persistence/repository/RoleRepository';
+import { UserRepository } from '@infrastructure/persistence/repository/UserRepository';
 
 const persistenceProviders: Provider[] = [
   {
     provide: UserDITokens.UserRepository,
-    useFactory: (dataSource: DataSource) => dataSource.getRepository(User),
+    useFactory: (dataSource: DataSource) => new UserRepository(dataSource),
+    inject: [DataSource],
+  },
+  {
+    provide: RoleDITokens.RoleRepository,
+    useFactory: (dataSource: DataSource) => new RoleRepository(dataSource),
     inject: [DataSource],
   },
 ];
@@ -16,8 +23,8 @@ const persistenceProviders: Provider[] = [
 const providers: Provider[] = [
   {
     provide: UserDITokens.UserService,
-    useFactory: (userRepository) => new UserService(userRepository),
-    inject: [UserDITokens.UserRepository],
+    useFactory: (userRepository, roleRepository) => new UserService(userRepository, roleRepository),
+    inject: [UserDITokens.UserRepository, RoleDITokens.RoleRepository],
   },
 ];
 

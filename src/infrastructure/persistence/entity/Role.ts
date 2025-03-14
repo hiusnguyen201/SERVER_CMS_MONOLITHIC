@@ -1,5 +1,16 @@
 import { ROLE_STATUS } from '@core/constant/role/RoleConstant';
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+  ManyToMany,
+  JoinTable,
+} from 'typeorm';
+import { User } from '@infrastructure/persistence/entity/User';
+import { Permission } from './Permission';
 
 @Entity()
 export class Role {
@@ -25,5 +36,13 @@ export class Role {
   updatedAt: Date;
 
   @DeleteDateColumn({ type: 'timestamp', nullable: true })
-  deletedAt: Date;
+  removedAt: Date;
+
+  // References
+  @ManyToMany(() => Permission, (permission: Permission): Role[] => permission.roles)
+  @JoinTable()
+  permissions: Permission[];
+
+  @ManyToMany(() => User, (user: User): Role[] => user.roles, { cascade: true })
+  users: User[];
 }

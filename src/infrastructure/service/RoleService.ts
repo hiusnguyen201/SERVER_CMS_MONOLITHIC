@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, ILike, Not, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Exception } from '@core/exception/Exception';
 import { Code } from '@core/code/Code';
@@ -9,15 +9,16 @@ import { RoleListDto } from '@infrastructure/dto/role/RoleListDto';
 import { GetRolePort } from '@infrastructure/port/role/GetRolePort';
 import { GetRoleListPort } from '@infrastructure/port/role/GetRoleListPort';
 import { CreateRolePort } from '@infrastructure/port/role/CreateRolePort';
-import { UpdateRolePort } from '@infrastructure/port/role/UpdateRolePort';
+import { UpdateRoleInfoPort } from '@infrastructure/port/role/UpdateRoleInfoPort';
 import { RemoveRolePort } from '@infrastructure/port/role/RemoveRolePort';
 import { CoreAssert } from '@core/util/assert/CoreAssert';
 import { StringTransformer } from '@core/util/StringTransformer';
 import { ROLE_STATUS } from '@core/constant/role/RoleConstant';
+import { RoleRepository } from '@infrastructure/persistence/repository/RoleRepository';
 
 @Injectable()
 export class RoleService {
-  constructor(@InjectRepository(Role) private readonly roleRepository: Repository<Role>) {}
+  constructor(private readonly roleRepository: RoleRepository) {}
 
   async createRole(payload: CreateRolePort): Promise<RoleDto> {
     const roleSlug = StringTransformer.makeSlug(payload.name);
@@ -39,39 +40,39 @@ export class RoleService {
   }
 
   async getRole(payload: GetRolePort): Promise<RoleDto> {
-    const role: Role = CoreAssert.notEmpty(
-      await this.roleRepository.findOne({ where: { id: payload.roleId } }),
-      Exception.new({ code: Code.ENTITY_NOT_FOUND_ERROR, overrideMessage: 'Role not found' }),
-    );
-
+    const role: Role = await this.roleRepository.findOneOrThrow({ where: { id: payload.roleId } });
     return RoleDto.newFromRole(role);
   }
 
   async getRoleList(payload: GetRoleListPort): Promise<RoleListDto> {
+    const filters: FindOptionsWhere<Role>[] = [
+      { name: ILike(`%${payload.keyword}%`) },
+      { description: ILike(`%${payload.keyword}%`) },
+    ];
+
     const [roles, totalCount]: [Role[], number] = await this.roleRepository.findAndCount({
+      where: filters,
       skip: (payload.page - 1) * payload.limit,
       take: payload.limit,
-      order: {
-        ...(payload.sortBy && payload.sortOrder ? { [payload.sortBy]: payload.sortOrder } : {}),
-      },
+      order: { [payload.sortBy as string]: payload.sortOrder },
     });
 
     return { totalCount, list: RoleDto.newListFromRoles(roles) };
   }
 
-  async updateRole(payload: UpdateRolePort): Promise<RoleDto> {
+  async updateRoleInfo(payload: UpdateRoleInfoPort): Promise<RoleDto> {
+    const role: Role = await this.roleRepository.findOneOrThrow({ where: { id: payload.roleId } });
+
     const roleSlug = StringTransformer.makeSlug(payload.name);
-    let role: Role = CoreAssert.notEmpty(
-      await this.roleRepository.findOne({ where: { id: payload.roleId } }),
-      Exception.new({ code: Code.ENTITY_NOT_FOUND_ERROR, overrideMessage: 'Role not found' }),
+    CoreAssert.isFalse(
+      await this.roleRepository.existsBy([
+        { name: payload.name, id: Not(role.id) },
+        { slug: roleSlug, id: Not(role.id) },
+      ]),
+      Exception.new({ code: Code.ENTITY_ALREADY_EXISTS_ERROR, overrideMessage: 'Role name already exists' }),
     );
 
-    const changes: Partial<Role> = {
-      ...payload,
-      slug: roleSlug,
-    };
-
-    Object.assign(role, changes);
+    Object.assign(role, { ...payload, slug: roleSlug } as Partial<Role>);
 
     await this.roleRepository.save(role);
 
@@ -79,10 +80,8 @@ export class RoleService {
   }
 
   async removeRole(payload: RemoveRolePort): Promise<RoleDto> {
-    const role: Role = CoreAssert.notEmpty(
-      await this.roleRepository.findOne({ where: { id: payload.roleId } }),
-      Exception.new({ code: Code.ENTITY_NOT_FOUND_ERROR, overrideMessage: 'Role not found' }),
-    );
+    console.log(payload);
+    const role: Role = await this.roleRepository.findOneOrThrow({ where: { id: payload.roleId } });
 
     CoreAssert.isTrue(
       role.status === ROLE_STATUS.INACTIVE,

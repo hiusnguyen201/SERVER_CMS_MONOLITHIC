@@ -3,12 +3,12 @@ import { RoleController } from '@app/api/controller/RoleController';
 import { RoleDITokens } from '@core/di/role/RoleDITokens';
 import { DataSource } from 'typeorm';
 import { RoleService } from '@infrastructure/service/RoleService';
-import { Role } from '@infrastructure/persistence/entity/Role';
+import { RoleRepository } from '@infrastructure/persistence/repository/RoleRepository';
 
 const persistenceProviders: Provider[] = [
   {
     provide: RoleDITokens.RoleRepository,
-    useFactory: (dataSource: DataSource) => dataSource.getRepository(Role),
+    useFactory: (dataSource: DataSource) => new RoleRepository(dataSource),
     inject: [DataSource],
   },
 ];
